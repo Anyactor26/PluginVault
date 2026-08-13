@@ -1,0 +1,18 @@
+name: Hot-Potato
+version: ${version}
+main: com.example.hotpotato.HotPotatoPlugin
+api-version: '1.21'
+author: Hot-Potato
+
+description: Hot Potato minigame - pass the potato before it explodes!
+
+commands:
+  hotpotato:
+    description: Start a Hot Potato game or stop the current one
+    usage: /hotpotato [stop]
+    permission: hotpotato.use
+
+permissions:
+  hotpotato.use:
+    description: Allows starting and stopping Hot Potato games
+    default: op

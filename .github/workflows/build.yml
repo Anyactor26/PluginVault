@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Test (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Generate Gradle wrapper (if missing)
+        run: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "gradle-wrapper.jar not found; generating with installed Gradle..."
+            gradle wrapper --gradle-version 8.10.2 --no-daemon
+          else
+            echo "gradle-wrapper.jar present."
+          fi
+
+      - name: Build
+        run: ./gradlew build --no-daemon
+
+      - name: Test
+        run: ./gradlew test --no-daemon
+
+      - name: Inspect JAR metadata
+        run: |
+          echo "Listing build/libs contents:"
+          ls -la build/libs/
+          JAR=$(find build/libs -name 'Hot-Potato-*.jar' | head -n1)
+          if [ -z "$JAR" ]; then
+            echo "ERROR: No JAR found in build/libs"
+            exit 1
+          fi
+          echo "Inspecting $JAR"
+          unzip -l "$JAR" | grep -E 'plugin.yml|config.yml' || {
+            echo "ERROR: plugin.yml or config.yml not found in JAR"
+            exit 1
+          }
+          echo "Main class from plugin.yml:"
+          unzip -p "$JAR" plugin.yml | grep -E 'main|name|api-version'
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hot-Potato-JAR
+          path: build/libs/Hot-Potato-*.jar
+          if-no-files-found: error
+          retention-days: 14

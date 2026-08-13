@@ -1,0 +1,14 @@
+# Hot-Potato configuration
+
+# How many seconds the potato holder has before it explodes
+countdown-seconds: 10
+
+# Display name shown on the potato item (supports legacy color codes with &)
+potato-display-name: "\uD83D\uDD25 HOT POTATO"
+
+# Sound played when the potato is transferred between players
+# Valid sound names: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+transfer-sound: ENTITY_GENERIC_EXPLODE
+
+# Sound played when the potato explodes
+explosion-sound: ENTITY_GENERIC_EXPLODE
